@@ -13,17 +13,17 @@ class MonodepthLoss(nn.modules.Module):
 
     def scale_pyramid(self, img, num_scales):
         scaled_imgs = [img]
-        s = img.size()
-        h = s[2]
-        w = s[3]
-        for i in range(num_scales - 1):
-            ratio = 2 ** (i + 1)
-            nh = h // ratio
+        s = img.size()                     # torch.size()하면 나오는게 [개수, 채널수, 행, 열] 이니까
+        h = s[2]                           # 2번째 값은 행이고
+        w = s[3]                           # 3번째 값은 열이다
+        for i in range(num_scales - 1):    # num_scales = 4이므로 0, 1, 2, 3 이렇게 4번 반복한다. 
+            ratio = 2 ** (i + 1)           # ratio: 2, 4, 8, 16
+            nh = h // ratio                
             nw = w // ratio
             scaled_imgs.append(nn.functional.interpolate(img,
                                size=[nh, nw], mode='bilinear',
-                               align_corners=True))
-        return scaled_imgs
+                               align_corners=True))                           # bilinear mode에서는 [0.5h, 0.5w],...등의 크기로 bilinear sampler를 진행한다는 소리임
+        return scaled_imgs                                                    # scaled_imgs: img의 리스트임 그렇다면 점점 줄어든 형태의 이미지를 추가함. 
 
     def gradient_x(self, img):
         # Pad input to keep output size consistent
